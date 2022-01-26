@@ -4,4 +4,4 @@ repos:
     hooks:
     -   id: flake8
         name: flake8
-        args: [--max-complexity=10, --max-line-length=127]
+        args: [--config=setup.cfg]
