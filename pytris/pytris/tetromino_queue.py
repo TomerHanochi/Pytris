@@ -1,6 +1,6 @@
 from random import shuffle
 
-from pytris.tetromino import Tetromino
+from pytris.tetromino import Tetromino, NAMES
 
 
 class TetrominoQueue:
@@ -17,9 +17,9 @@ class TetrominoQueue:
         return repr(self.__queue)
 
     def update(self) -> None:
-        bag = list(Tetromino.rotations.keys())
+        bag = NAMES.copy()
         shuffle(bag)
-        self.__queue.extend(bag)
+        self.__queue.extend(Tetromino(name) for name in bag)
 
-    def pop(self) -> str:
+    def pop(self) -> Tetromino:
         return self.__queue.pop(0)

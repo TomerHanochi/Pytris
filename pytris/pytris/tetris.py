@@ -1,6 +1,5 @@
 from pytris.board import Board
-from pytris.cooldown import cooldown
-from pytris.tetromino import Tetromino
+from pytris.tetromino import NAMES
 from pytris.tetromino_queue import TetrominoQueue
 
 
@@ -9,60 +8,51 @@ class Tetris:
         self.board = Board(10, 20)
         self.tetromino_queue = TetrominoQueue()
         self.tetromino_queue.update()
-        self.cur_tetromino = Tetromino(self.tetromino_queue.pop())
+        self.cur_tetromino = self.tetromino_queue.pop()
+        self.y = -4
+        self.x = 3
         self.held_tetromino = None
 
-        self.should_move_left = False
-        self.should_move_right = False
-        self.should_soft_drop = False
-
     def update(self) -> None:
-        if self.terminal:
-            pass
-        else:
-            if len(self.tetromino_queue) < len(Tetromino.rotations.keys()):
+        if not self.terminal:
+            if len(self.tetromino_queue) <= len(NAMES):
                 self.tetromino_queue.update()
 
-            for i, j in self.cur_tetromino.rotation:
-                self.board[self.cur_tetromino.y + j][self.cur_tetromino.x + i] = self.cur_tetromino.name
-
-            cleared = self.board.clear_rows()
-            if cleared:
-                pass
-
-            if self.should_move_left:
-                self.move_left()
-
-            if self.should_move_right:
-                self.move_right()
-
-            if self.should_soft_drop:
-                self.soft_drop()
-
-            if self.locked:
-                self.cur_tetromino = Tetromino(self.tetromino_queue.pop())
-
-            self.move_down()
-
     def move_down(self) -> None:
-        pass
+        if self.can_move_down:
+            self.y += 1
 
-    @cooldown(duration=0.05)
     def move_right(self) -> None:
-        pass
+        if self.can_move_right:
+            self.x += 1
 
-    @cooldown(duration=0.05)
     def move_left(self) -> None:
-        pass
+        if self.can_move_left:
+            self.x -= 1
 
-    @cooldown(duration=0.05)
-    def soft_drop(self) -> None:
-        pass
+    def hard_drop(self) -> None:
+        while self.can_move_down:
+            self.y += 1
+
+    @property
+    def can_move_down(self) -> bool:
+        return self.y + self.cur_tetromino.bottom < self.board.height and \
+               all(self.board[self.y + j + 1][self.x + i] is None for i, j in self.cur_tetromino.rotation)
+
+    @property
+    def can_move_right(self) -> bool:
+        return self.x + self.cur_tetromino.right < self.board.width and \
+               all(self.board[self.y + j][self.x + i - 1] is None for i, j in self.cur_tetromino.rotation)
+
+    @property
+    def can_move_left(self) -> bool:
+        return self.x + self.cur_tetromino.left >= 0 and \
+               all(self.board[self.y + j][self.x + i - 1] is None for i, j in self.cur_tetromino.rotation)
 
     @property
     def terminal(self) -> bool:
         """ If the top row has any locked blocks in it, the game is over. """
-        return not self.board[0].is_empty
+        return not self.board.is_empty(index=0)
 
     @property
     def locked(self) -> bool:
