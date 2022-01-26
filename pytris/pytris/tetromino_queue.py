@@ -1,25 +1,18 @@
+from dataclasses import dataclass
 from random import shuffle
+from typing import Any, Dict, List
 
-from pytris.tetromino import Tetromino, NAMES
+from pytris.generic_data_structures import Queue
+from pytris.tetromino import NAMES, Tetromino
 
 
-class TetrominoQueue:
-    def __init__(self) -> None:
-        self.__queue = []
-
-    def __getitem__(self, index: int) -> str:
-        return self.__queue[index]
-
-    def __len__(self) -> int:
-        return len(self.__queue)
-
-    def __repr__(self) -> str:
-        return repr(self.__queue)
-
+@dataclass
+class TetrominoQueue(Queue[Tetromino]):
     def update(self) -> None:
         bag = NAMES.copy()
         shuffle(bag)
-        self.__queue.extend(Tetromino(name) for name in bag)
+        for name in bag:
+            self.insert(Tetromino(name))
 
-    def pop(self) -> Tetromino:
-        return self.__queue.pop(0)
+    def to_json(self) -> List[Dict[str, Any]]:
+        return [tetromino.to_json() for tetromino in self]

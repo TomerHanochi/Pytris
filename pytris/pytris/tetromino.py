@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Tuple
+from typing import Tuple, Any, Dict
 
 ROTATIONS = {
     'O': (
@@ -84,3 +84,11 @@ class Tetromino:
     def height(self) -> int:
         """ Returns the height of the Tetromino. """
         return abs(self.top - self.bottom) + 1
+
+    def to_json(self) -> Dict[str, Any]:
+        return {
+            'name': self.name,
+            'rotation': self.rotation,
+            'width': self.width,
+            'height': self.height,
+        }
