@@ -6,10 +6,12 @@ import pygame as pg
 from pyview.key import Key
 from pyview.widget import Widget
 
+SCREEN_REDIRECT = pg.event.custom_type()
+
 
 @dataclass(frozen=True)
 class Screen:
-    REDIRECT: ClassVar[int] = pg.event.custom_type()
+    ID: ClassVar[str] = None
 
     width: int
     height: int
@@ -17,10 +19,14 @@ class Screen:
     fps: int = 60
     fps_clock: pg.time.Clock = field(init=False, default_factory=pg.time.Clock)
 
-    @classmethod
-    def redirect(cls, screen_id: str) -> None:
+    def __init_subclass__(cls, **kwargs) -> None:
+        if not isinstance(cls.ID, str):
+            raise ValueError(f'{cls.__name__} - ID must be set on child class and be a string')
+
+    @staticmethod
+    def redirect(screen_id: str) -> None:
         """ Posts pygame event to redirect the user to the screen mapped to the screen id. """
-        event = pg.event.Event(cls.REDIRECT, screen_id=screen_id)
+        event = pg.event.Event(SCREEN_REDIRECT, screen_id=screen_id)
         pg.event.post(event)
 
     def update(self) -> None:
