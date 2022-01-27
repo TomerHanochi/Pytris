@@ -7,7 +7,7 @@ from pyview.key import Key
 from pyview.widget import Widget
 
 
-@dataclass
+@dataclass(frozen=True)
 class Screen:
     REDIRECT: ClassVar[int] = pg.event.custom_type()
 
@@ -25,7 +25,7 @@ class Screen:
 
     def update(self) -> None:
         """ Updates screen every frame. """
-        raise NotImplementedError('Screen subclasses must implement \'update\'')
+        pass
 
     def set_as_main(self) -> None:
         """ Resets screen as main screen. """

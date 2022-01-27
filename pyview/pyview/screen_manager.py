@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict
 
 import pygame as pg
@@ -12,15 +12,15 @@ class ScreenManager:
     screen_id: str
     screens: Dict[str, Screen]
 
+    run: bool = field(init=False, default=True)
+
     def __post_init__(self) -> None:
         self.current_screen.set_as_main()
 
     def handle_event(self, event: pg.event.Event) -> None:
         """ Handles all allowed event types. """
         if event.type == pg.QUIT:
-            self.current_screen.quit()
-            pg.quit()
-            exit()
+            self.run = False
         elif event.type == pg.KEYDOWN:
             self.current_screen.key_down(Key(event.key))
         elif event.type == pg.KEYUP:
@@ -50,6 +50,20 @@ class ScreenManager:
         self.current_screen.update()
         self.current_screen.clock()
         pg.display.update()
+
+    def main_loop(self) -> None:
+        while self.run:
+            self.execute()
+
+    def __enter__(self) -> 'ScreenManager':
+        pg.init()
+        return self
+
+    def __exit__(self, type, value, traceback) -> bool:
+        self.current_screen.quit()
+        pg.quit()
+        if type is KeyboardInterrupt:
+            return True
 
     @property
     def current_screen(self) -> Screen:
