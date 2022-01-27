@@ -14,7 +14,7 @@ class ScreenManager:
     def __init__(self, screen_id: str, screen_dir: str) -> None:
         self.screen_id = screen_id
         self.run = True
-        self.screens = {screen.ID: screen for screen in self.import_screens(screen_dir)}
+        self.screens = {screen.id: screen for screen in self.import_screens(screen_dir)}
         self.current_screen.set_as_main()
 
     def __enter__(self) -> 'ScreenManager':

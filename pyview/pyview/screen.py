@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from typing import ClassVar
 
 import pygame as pg
 
@@ -11,17 +10,10 @@ SCREEN_REDIRECT = pg.event.custom_type()
 
 @dataclass(frozen=True)
 class Screen:
-    ID: ClassVar[str] = None
-
     width: int
     height: int
-    caption: str
     fps: int = 60
     fps_clock: pg.time.Clock = field(init=False, default_factory=pg.time.Clock)
-
-    def __init_subclass__(cls, **kwargs) -> None:
-        if not isinstance(cls.ID, str):
-            raise ValueError(f'{cls.__name__} - ID must be set on child class and be a string')
 
     @staticmethod
     def redirect(screen_id: str) -> None:
@@ -38,7 +30,7 @@ class Screen:
         pg.display.quit()
         pg.display.init()
         pg.display.set_mode((self.width, self.height))
-        pg.display.set_caption(self.caption)
+        pg.display.set_caption(self.id)
 
     def clock(self) -> None:
         """ Clocks screen to make sure it runs on a stable fps. """
@@ -89,3 +81,7 @@ class Screen:
     @property
     def window(self) -> pg.Surface:
         return pg.display.get_surface()
+
+    @property
+    def id(self) -> str:
+        return self.__class__.__name__
