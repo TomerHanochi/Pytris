@@ -1,21 +1,20 @@
-import os
-from pathlib import Path
+from typing import Dict, Generic, TypeVar
 
-import pygame as pg
+from pygame.font import Font
+from pygame.mixer import Sound
+
+from pyview.surface import Surface
+
+AssetType = TypeVar('AssetType', Surface, Font, Sound)
 
 
-class Assets:
-    def __init__(self, dir_path: Path) -> None:
-        for root, _, files in os.walk(dir_path):
-            for file in files:
-                path = Path(os.path.join(root, file))
-                if path.suffix in {'.jpg', '.jpeg', '.png'}:
-                    asset = pg.image.load(path).convert_alpha()
-                elif path.suffix in {'.ttf', '.otf'}:
-                    asset = pg.freetype.Font(path)
-                elif path.suffix in {'.wav', '.ogg'}:
-                    asset = pg.mixer.Sound(path)
-                else:
-                    continue
+class Assets(Generic[AssetType]):
+    def __init__(self, assets: Dict[str, AssetType]) -> None:
+        for attr, value in assets.items():
+            setattr(self, attr, value)
 
-                setattr(self, path.stem, asset)
+    def __getitem__(self, key: str) -> AssetType:
+        try:
+            return getattr(self, key)
+        except AttributeError:
+            raise KeyError(f'No asset named {key}')

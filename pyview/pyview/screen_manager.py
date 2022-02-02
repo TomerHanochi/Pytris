@@ -2,6 +2,7 @@ import ast
 import importlib.util
 import os
 from _ast import ClassDef
+from pathlib import Path
 from typing import List
 
 import pygame as pg
@@ -12,20 +13,29 @@ from pyview.screen import SCREEN_REDIRECT, Screen
 
 class ScreenManager:
     def __init__(self, screen_id: str, screen_dir: str) -> None:
-        self.screen_id = screen_id
+        pg.init()
+        pg.display.set_mode((1, 1))
+
         self.run = True
         self.screens = {screen.id: screen for screen in self.import_screens(screen_dir)}
-        self.current_screen.set_as_main()
+        self.current_screen_id = screen_id
+        self.set_display()
 
     def __enter__(self) -> 'ScreenManager':
-        pg.init()
         return self
 
-    def __exit__(self, type, value, traceback) -> bool:
+    def __exit__(self, error_type: BaseException, value: str, traceback: str) -> bool:
         self.current_screen.quit()
         pg.quit()
-        if type is KeyboardInterrupt:
+        if error_type is KeyboardInterrupt:
             return True
+
+    def set_display(self) -> None:
+        """ Resets screen as main screen. """
+        pg.display.quit()
+        pg.display.init()
+
+        self.current_screen.set_as_main()
 
     def handle_event(self, event: pg.event.Event) -> None:
         """ Handles all allowed event types. """
@@ -46,8 +56,8 @@ class ScreenManager:
         elif event.type == pg.MOUSEMOTION:
             self.current_screen.mouse_move(*pg.mouse.get_pos(), *event.rel)
         elif event.type == SCREEN_REDIRECT:
-            self.screen_id = event.screen_id
-            self.current_screen.set_as_main()
+            self.current_screen_id = event.screen_id
+            self.set_display()
 
     def handle_events(self) -> None:
         """ Loops over all events in queue and handles them. """
@@ -67,8 +77,7 @@ class ScreenManager:
 
     @property
     def current_screen(self) -> Screen:
-        """ Returns the current screen. """
-        return self.screens[self.screen_id]
+        return self.screens[self.current_screen_id]
 
     @staticmethod
     def import_screens(screen_dir: str) -> List[Screen]:
@@ -76,20 +85,21 @@ class ScreenManager:
         screens = []
         for root, _, files in os.walk(screen_dir):
             for filename in files:
-                if not filename.endswith('.py'):
+                path = Path(os.path.join(root, filename))
+
+                if path.suffix != '.py':
                     continue
 
-                full_path = os.path.join(root, filename)
-                with open(full_path) as f:
-                    node = ast.parse(f.read())
-                    for cls_def in node.body:
+                with open(path) as f:
+                    module = ast.parse(f.read())
+                    for class_definition in module.body:
                         # if the child is not a class definition, or it's not inheriting from Screen
-                        if not isinstance(cls_def, ClassDef) or cls_def.bases[0].id != 'Screen':
+                        if not isinstance(class_definition, ClassDef) or class_definition.bases[0].id != 'Screen':
                             continue
 
-                        spec = importlib.util.spec_from_file_location(filename[:-3], full_path)
+                        spec = importlib.util.spec_from_file_location(path.stem, path)
                         module = importlib.util.module_from_spec(spec)
                         spec.loader.exec_module(module)
-                        cls = getattr(module, cls_def.name)
+                        cls = getattr(module, class_definition.name)
                         screens.append(cls())
         return screens
