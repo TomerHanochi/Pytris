@@ -3,7 +3,7 @@ from pyview.surface import Surface
 
 class Widget(Surface):
     def __init__(self, surface: Surface, x: float, y: float, centered: bool = False) -> None:
-        super().__init__(surface.image.copy(), surface.width, surface.height)
+        super().__init__(surface.width, surface.height, surface.image.copy())
 
         self.x = x
         self.y = y

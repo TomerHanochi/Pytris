@@ -4,9 +4,12 @@ import pygame as pg
 
 
 class Surface:
-    def __init__(self, image: pg.Surface, width: float = None, height: float = None) -> None:
-        self.image = pg.transform.smoothscale(image, (width or image.get_width(),
-                                                      height or image.get_height())).convert_alpha()
+    def __init__(self, width: float = None, height: float = None, image: pg.Surface = None) -> None:
+        if image is None:
+            self.image = pg.Surface((width, height)).convert_alpha()
+        else:
+            self.image = pg.transform.smoothscale(image, (width or image.get_width(),
+                                                          height or image.get_height())).convert_alpha()
 
     def blit(self, surface: 'Surface', x: float, y: float, centered: bool = False) -> None:
         if centered:
@@ -51,4 +54,4 @@ class Surface:
 
     @classmethod
     def load(cls, filename, width: float = None, height: float = None) -> 'Surface':
-        return cls(pg.image.load(filename), width, height)
+        return cls(width, height, pg.image.load(filename))

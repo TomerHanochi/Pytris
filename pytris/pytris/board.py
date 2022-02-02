@@ -4,7 +4,7 @@ from pytris.generic_data_structures import Array
 
 
 class Board(Array[Array[Optional[str]]]):
-    def __init__(self, width: float, height: float) -> None:
+    def __init__(self, width: int, height: int) -> None:
         super().__init__(Array(None for _ in range(width)) for _ in range(height))
         self.__width = width
         self.__height = height

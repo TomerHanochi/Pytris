@@ -36,7 +36,7 @@ class Tetris:
                 continue
 
             cur_row = row
-            while self.board.is_empty(cur_row + 1):
+            while cur_row + 1 < self.board.height and self.board.is_empty(cur_row + 1):
                 self.board.switch_rows(cur_row, cur_row + 1)
                 cur_row += 1
 

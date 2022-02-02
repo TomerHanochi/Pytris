@@ -1,7 +1,8 @@
 import os
 from pathlib import Path
+from typing import Tuple
 
-from pyview.utils.class_property import classproperty
+from classproperty import classproperty
 
 
 class Consts:
@@ -24,3 +25,15 @@ class Consts:
     @classproperty
     def sounds_directory(cls) -> str:
         return os.path.join(cls.assets_directory, 'sounds')
+
+    @classproperty
+    def display_width(cls) -> int:
+        return 1920
+
+    @classproperty
+    def display_height(cls) -> int:
+        return 1080
+
+    @classproperty
+    def display_size(cls) -> Tuple[int, int]:
+        return cls.display_width, cls.display_height

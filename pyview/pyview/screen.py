@@ -1,15 +1,15 @@
 import pygame as pg
 
+from classproperty import classproperty
 from pyview.key import Key
 from pyview.surface import Surface
-from pyview.utils.class_property import classproperty
 
 SCREEN_REDIRECT = pg.event.custom_type()
 
 
 class Screen(Surface):
     def __init__(self, width: int, height: int, fps: int = 60) -> None:
-        super().__init__(pg.Surface((width, height)))
+        super().__init__(width, height, pg.Surface((width, height)))
         self.fps = fps
         self.fps_clock = pg.time.Clock()
 

@@ -5,7 +5,7 @@ from pyview.screen_manager import ScreenManager
 
 def main() -> None:
     screen_dir = os.path.join(os.path.dirname(__file__), 'screens')
-    with ScreenManager('MainMenu', screen_dir) as manager:
+    with ScreenManager('Game', screen_dir) as manager:
         manager.main_loop()
 
 
