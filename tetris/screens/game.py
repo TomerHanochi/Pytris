@@ -51,7 +51,7 @@ class Game(Screen):
     def __init__(self) -> None:
         height = Consts.display_height * 0.9
         width = height * 4 / 3  # 4:3 ratio
-        super().__init__(width, height, fps=10)
+        super().__init__(width, height, fps=3)
 
         self.board = Board(width=10, height=20, block_size=40)
 
@@ -76,3 +76,11 @@ class Game(Screen):
             self.tetris.hard_drop()
         elif key is Key.DOWN_ARROW:
             self.tetris.soft_drop()
+        elif key in {Key.UP_ARROW, Key.X}:
+            self.tetris.rotate_right()
+        elif key in {Key.CTRL, Key.Z}:
+            self.tetris.rotate_left()
+        elif key in {Key.SHIFT, Key.C}:
+            self.tetris.hold()
+        elif key in {Key.ESCAPE, Key.F1}:
+            pass  # TODO pause

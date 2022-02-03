@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 from pytris.active_tetromino import ActiveTetromino
 from pytris.board import Board
@@ -49,15 +49,25 @@ class Tetris:
 
     def move_down(self) -> None:
         if self.can_move_down:
-            self.current_tetromino.y += 1
+            self.current_tetromino.move_down()
 
     def move_right(self) -> None:
         if self.can_move_right:
-            self.current_tetromino.x += 1
+            self.current_tetromino.move_right()
 
     def move_left(self) -> None:
         if self.can_move_left:
-            self.current_tetromino.x -= 1
+            self.current_tetromino.move_left()
+
+    def rotate_right(self) -> None:
+        for x_offset, y_offset in self.current_tetromino.right_rotation_offsets:
+            if self.can_rotate(self.current_tetromino.right_rotation, x_offset, y_offset):
+                self.current_tetromino.rotate_right()
+
+    def rotate_left(self) -> None:
+        for x_offset, y_offset in self.current_tetromino.left_rotation_offsets:
+            if self.can_rotate(self.current_tetromino.left_rotation, x_offset, y_offset):
+                self.current_tetromino.rotate_left()
 
     def soft_drop(self) -> None:
         if self.can_move_right:
@@ -97,6 +107,12 @@ class Tetris:
         return self.current_tetromino.left > 0 and \
                all(self.board[self.current_tetromino.y + j][self.current_tetromino.x + i - 1] is None
                    for i, j in self.current_tetromino.rotation)
+
+    def can_rotate(self, rotation: Tuple[Tuple[int, int], ...], x_offset: int, y_offset: int) -> bool:
+        return all(0 < self.current_tetromino.y + j + y_offset < self.board.height and
+                   0 < self.current_tetromino.x + i + x_offset < self.board.width and
+                   self.board[self.current_tetromino.y + j + y_offset][self.current_tetromino.x + i + x_offset] is None
+                   for i, j in rotation)
 
     @property
     def terminal(self) -> bool:

@@ -51,7 +51,7 @@ class Tetromino:
     rotation_index: int = field(init=False, default=0)
 
     @property
-    def rotation(self) -> Tuple[Tuple[int, int]]:
+    def rotation(self) -> Tuple[Tuple[int, int], ...]:
         """ Returns the current rotation of the Tetromino. """
         return ROTATIONS[self.name][self.rotation_index]
 

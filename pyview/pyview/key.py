@@ -4,6 +4,10 @@ from enum import Enum
 class Key(Enum):
     """ Enum for keyboard keys and their corresponding pygame ids. """
 
+    @classmethod
+    def has_value(cls, value: int) -> bool:
+        return any(item.value == value for item in cls)
+
     LEFT_SHIFT = 1
     RIGHT_SHIFT = 2
     SHIFT = 3

@@ -42,9 +42,11 @@ class ScreenManager:
         if event.type == pg.QUIT:
             self.run = False
         elif event.type == pg.KEYDOWN:
-            self.current_screen.key_down(Key(event.key))
+            if Key.has_value(event.key):
+                self.current_screen.key_down(Key(event.key))
         elif event.type == pg.KEYUP:
-            self.current_screen.key_up(Key(event.key))
+            if Key.has_value(event.key):
+                self.current_screen.key_up(Key(event.key))
         elif event.type == pg.MOUSEBUTTONDOWN:
             if 1 <= event.button <= 3:
                 self.current_screen.mouse_down(*pg.mouse.get_pos())
