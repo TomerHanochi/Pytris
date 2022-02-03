@@ -90,11 +90,10 @@ class Tetris:
 
     @property
     def can_move_down(self) -> bool:
-        if self.current_tetromino.bottom < 0:
-            return True
-        return self.current_tetromino.bottom + 1 < self.board.height and \
-               all(self.board[self.current_tetromino.y + j + 1][self.current_tetromino.x + i] is None
-                   for i, j in self.current_tetromino.rotation if self.current_tetromino.y + j >= 0)
+        return self.current_tetromino.bottom < 0 or \
+               (self.current_tetromino.bottom + 1 < self.board.height and
+                all(self.board[self.current_tetromino.y + j + 1][self.current_tetromino.x + i] is None
+                    for i, j in self.current_tetromino.rotation if self.current_tetromino.y + j >= 0))
 
     @property
     def can_move_right(self) -> bool:
