@@ -1,4 +1,3 @@
-import dataclasses
 from typing import Any, Dict, List, Tuple
 
 from pytris.active_tetromino import ActiveTetromino
@@ -142,8 +141,7 @@ class Tetris:
 
     @property
     def ghost_tetromino(self) -> ActiveTetromino:
-        ghost_tetromino = dataclasses.replace(self.current_tetromino)
-        ghost_tetromino.rotation_index = self.current_tetromino.rotation_index
+        ghost_tetromino = self.current_tetromino.copy()
         while ghost_tetromino.bottom + 1 < self.board.height and \
                 all(self.board[ghost_tetromino.y + j + 1][ghost_tetromino.x + i] is None
                     for i, j in ghost_tetromino.rotation if ghost_tetromino.y + j >= 0):

@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from functools import cached_property
 from typing import Any, Dict, Tuple
 
@@ -103,6 +103,11 @@ class ActiveTetromino(Tetromino):
 
     def rotate_left(self) -> None:
         self.rotation_index = self.left_rotation_index
+
+    def copy(self) -> 'ActiveTetromino':
+        copy = replace(self)
+        copy.rotation_index = self.rotation_index
+        return copy
 
     @classmethod
     def from_tetromino(cls, tetromino: Tetromino, x: int, y: int) -> 'ActiveTetromino':
