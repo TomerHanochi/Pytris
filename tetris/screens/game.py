@@ -1,7 +1,7 @@
 import os
 from typing import Dict
 
-from pytris import Tetris
+from pytris.controller import TetrisController
 from pyview.assets import Assets
 from pyview.key import Key
 from pyview.screen import Screen
@@ -51,11 +51,11 @@ class Game(Screen):
     def __init__(self) -> None:
         height = Consts.display_height * 0.9
         width = height * 4 / 3  # 4:3 ratio
-        super().__init__(width, height, fps=3)
+        super().__init__(width, height, fps=60)
 
         self.board = Board(width=10, height=20, block_size=40)
 
-        self.tetris = Tetris()
+        self.tetris = TetrisController(10, 20)
 
     def update(self) -> None:
         self.fill((0, 0, 0))
@@ -64,23 +64,34 @@ class Game(Screen):
         self.board.update(info)
         self.blit(self.board, self.width * .5, self.height * .5, centered=True)
 
-        self.tetris.move_down()
         self.tetris.update()
 
     def key_down(self, key: Key) -> None:
         if key is Key.RIGHT_ARROW:
-            self.tetris.move_right()
+            self.tetris.start_move_right()
         elif key is Key.LEFT_ARROW:
-            self.tetris.move_left()
+            self.tetris.start_move_left()
         elif key is Key.SPACE:
             self.tetris.hard_drop()
         elif key is Key.DOWN_ARROW:
-            self.tetris.soft_drop()
+            self.tetris.start_soft_drop()
         elif key in {Key.UP_ARROW, Key.X}:
-            self.tetris.rotate_right()
+            self.tetris.start_rotate_right()
         elif key in {Key.CTRL, Key.Z}:
-            self.tetris.rotate_left()
+            self.tetris.start_rotate_left()
         elif key in {Key.SHIFT, Key.C}:
             self.tetris.hold()
         elif key in {Key.ESCAPE, Key.F1}:
-            pass  # TODO pause
+            self.tetris.pause_or_resume()
+
+    def key_up(self, key: Key) -> None:
+        if key is Key.RIGHT_ARROW:
+            self.tetris.stop_move_right()
+        elif key is Key.LEFT_ARROW:
+            self.tetris.stop_move_left()
+        elif key is Key.DOWN_ARROW:
+            self.tetris.stop_soft_drop()
+        elif key in {Key.UP_ARROW, Key.X}:
+            self.tetris.stop_rotate_right()
+        elif key in {Key.CTRL, Key.Z}:
+            self.tetris.stop_rotate_left()

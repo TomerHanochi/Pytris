@@ -5,10 +5,14 @@ from pytris.board import Board
 from pytris.tetromino import NAMES, Tetromino
 from pytris.tetromino_queue import TetrominoQueue
 
+LINE_CLEAR_SCORE = (100, 300, 500, 800)
+SOFT_DROP_SCORE = 1
+HARD_DROP_SCORE = 2
+
 
 class Tetris:
-    def __init__(self) -> None:
-        self.board = Board(10, 20)
+    def __init__(self, width: int, height: int) -> None:
+        self.board = Board(width, height)
         self.tetromino_queue = TetrominoQueue()
         self.tetromino_queue.update()
         self.current_tetromino = ActiveTetromino.from_tetromino(self.tetromino_queue.pop(), 3, -4)
@@ -16,19 +20,20 @@ class Tetris:
         self.held_tetromino = None
         self.can_hold = True
 
-    def update(self) -> None:
-        if not self.terminal:
-            if len(self.tetromino_queue) <= len(NAMES):
-                self.tetromino_queue.update()
+        self.cleared_lines = 30
+        self.score = 0
 
-            if not self.can_move_down:
-                for i, j in self.current_tetromino.rotation:
-                    self.board[self.current_tetromino.y + j][self.current_tetromino.x + i] = self.current_tetromino.name
-                self.clear_rows()
+    def lock(self) -> None:
+        if len(self.tetromino_queue) <= len(NAMES):
+            self.tetromino_queue.update()
 
-                self.current_tetromino = ActiveTetromino.from_tetromino(self.tetromino_queue.pop(), 3, -4)
+        for i, j in self.current_tetromino.rotation:
+            self.board[self.current_tetromino.y + j][self.current_tetromino.x + i] = self.current_tetromino.name
+        self.clear_rows()
 
-                self.can_hold = True
+        self.current_tetromino = ActiveTetromino.from_tetromino(self.tetromino_queue.pop(), 3, -4)
+
+        self.can_hold = True
 
     def drop_rows(self, cleared_rows: List[int]) -> None:
         for row in range(cleared_rows[-1] - 1, 0, -1):
@@ -44,6 +49,9 @@ class Tetris:
         if cleared_rows := self.board.full_rows:
             for row in cleared_rows:
                 self.board[row].clear()
+
+            self.cleared_lines += len(cleared_rows)
+            self.score += LINE_CLEAR_SCORE[len(cleared_rows) - 1] * self.level
 
             self.drop_rows(cleared_rows)
 
@@ -63,19 +71,25 @@ class Tetris:
         for x_offset, y_offset in self.current_tetromino.right_rotation_offsets:
             if self.can_rotate(self.current_tetromino.right_rotation, x_offset, y_offset):
                 self.current_tetromino.rotate_right()
+                self.current_tetromino.x += x_offset
+                self.current_tetromino.y += y_offset
 
     def rotate_left(self) -> None:
         for x_offset, y_offset in self.current_tetromino.left_rotation_offsets:
             if self.can_rotate(self.current_tetromino.left_rotation, x_offset, y_offset):
                 self.current_tetromino.rotate_left()
+                self.current_tetromino.x += x_offset
+                self.current_tetromino.y += y_offset
 
     def soft_drop(self) -> None:
-        if self.can_move_right:
+        if self.can_move_down:
             self.current_tetromino.y += 1
+            self.score += SOFT_DROP_SCORE
 
     def hard_drop(self) -> None:
         while self.can_move_down:
             self.current_tetromino.y += 1
+            self.score += HARD_DROP_SCORE
 
     def hold(self) -> None:
         if self.can_hold:
@@ -117,6 +131,10 @@ class Tetris:
     def terminal(self) -> bool:
         """ If the top row has any locked blocks in it, the game is over. """
         return not self.board.is_empty(0)
+
+    @property
+    def level(self) -> int:
+        return self.cleared_lines // 10
 
     def to_json(self) -> Dict[str, Any]:
         return {
