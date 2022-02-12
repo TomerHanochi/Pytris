@@ -12,3 +12,5 @@ class Consts:
     board_width = 10
     board_height = 20
     block_size = 40
+
+    next_size = 6
