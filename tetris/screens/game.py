@@ -1,71 +1,64 @@
-import os
-from typing import Dict
+from typing import Dict, Iterable, Tuple
 
 from pytris.controller import TetrisController
-from pyview.assets import Assets
+from pyview import DISPLAY_HEIGHT
 from pyview.key import Key
 from pyview.screen import Screen
 from pyview.surface import Surface
+from tetris.assets import Colors, Images
 from tetris.consts import Consts
 
 
-class Board(Surface):
-    def __init__(self, width: int, height: int, block_size: int) -> None:
-        super().__init__((width + 2) * block_size, (height + 2) * block_size)
-        self.images = Assets[str, Surface]({name: Surface.load(os.path.join(Consts.images_directory, f'{name}.png'),
-                                                               block_size, block_size)
-                                            for name in ('O', 'I', 'T', 'L', 'J', 'S', 'Z', 'border', 'ghost')})
-        self.block_size = block_size
-        self.background_color = (0, 0, 0, 0)
-        # draws the board border
-        self.fill(self.background_color)
+class Border(Surface):
+    def __init__(self, width: int, height: int) -> None:
+        super().__init__(width * Consts.block_size, height * Consts.block_size)
+        self.fill(Colors.transparent)
         for i in range(width + 2):
-            self.blit(self.images.border, i * block_size, 0)
-            self.blit(self.images.border, i * block_size, (height + 1) * block_size)
-        for j in range(1, height + 1):
-            self.blit(self.images.border, 0, j * block_size)
-            self.blit(self.images.border, (width + 1) * block_size, j * block_size)
+            self.blit(Images.border, i * Consts.block_size, 0)
+            self.blit(Images.border, i * Consts.block_size, (height - 1) * Consts.block_size)
+        for j in range(1, height - 1):
+            self.blit(Images.border, 0, j * Consts.block_size)
+            self.blit(Images.border, (width - 1) * Consts.block_size, j * Consts.block_size)
 
-    def draw_tetromino(self, tetromino: Dict, image_name: str = None) -> None:
-        image = self.images[image_name or tetromino['name']]
-        x = tetromino['x']
-        y = tetromino['y']
-        for i, j in tetromino['rotation']:
+    def reset(self) -> None:
+        self.fill(Colors.transparent, Consts.block_size, Consts.block_size, self.width - Consts.block_size * 2,
+                  self.height - Consts.block_size * 2)
+
+    def draw_tetromino(self, name: str, x: int, y: int, rotation: Iterable[Tuple[int, int]]) -> None:
+        for i, j in rotation:
             if y + j + 1 > 0:
-                self.blit(image, (x + i + 1) * self.block_size, (y + j + 1) * self.block_size)
-
-    def update(self, info: Dict) -> None:
-        self.fill(self.background_color, self.block_size, self.block_size,
-                  self.width - 2 * self.block_size, self.height - 2 * self.block_size)
-        board = info['board']
-        for j, row in enumerate(board['cells']):
-            for i, cell in enumerate(row):
-                if cell is None:
-                    continue
-
-                image = self.images[cell]
-                self.blit(image, (i + 1) * self.block_size, (j + 1) * self.block_size)
-
-        self.draw_tetromino(info['ghost_tetromino'], image_name='ghost')
-        self.draw_tetromino(info['current_tetromino'])
+                self.blit(Images[name], (x + i + 1) * Consts.block_size, (y + j + 1) * Consts.block_size)
 
 
 class Game(Screen):
     def __init__(self) -> None:
-        height = Consts.display_height * 0.9
-        width = height * 4 / 3  # 4:3 ratio
-        super().__init__(width, height, fps=100)
+        super().__init__(DISPLAY_HEIGHT, DISPLAY_HEIGHT * 0.75, fps=100)
 
-        self.board = Board(width=10, height=20, block_size=40)
+        self.board = Border(12, 22)
 
         self.tetris = TetrisController(10, 20)
 
-    def update(self) -> None:
-        self.fill((0, 0, 0))
+    def draw_board(self, info: Dict) -> None:
+        self.board.reset()
+        for j, row in enumerate(info['board']['cells']):
+            for i, cell in enumerate(row):
+                if cell is None:
+                    continue
 
-        info = self.tetris.to_json()
-        self.board.update(info)
+                image = Images[cell]
+                self.board.blit(image, (i + 1) * Consts.block_size, (j + 1) * Consts.block_size)
+
+        ghost_tetromino = info['ghost_tetromino']
+        self.board.draw_tetromino('ghost', ghost_tetromino['x'], ghost_tetromino['y'], ghost_tetromino['rotation'])
+        current_tetromino = info['current_tetromino']
+        self.board.draw_tetromino(current_tetromino['name'], current_tetromino['x'], current_tetromino['y'],
+                                  current_tetromino['rotation'])
         self.blit(self.board, self.width * .5, self.height * .5, centered=True)
+
+    def update(self) -> None:
+        self.fill(Colors.black)
+        info = self.tetris.to_json()
+        self.draw_board(info)
 
         self.tetris.update()
 
