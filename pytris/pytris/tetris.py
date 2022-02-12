@@ -1,3 +1,4 @@
+import dataclasses
 from typing import Any, Dict, List, Tuple
 
 from pytris.active_tetromino import ActiveTetromino
@@ -138,10 +139,21 @@ class Tetris:
     def level(self) -> int:
         return self.cleared_lines // 10
 
+    @property
+    def ghost_tetromino(self) -> ActiveTetromino:
+        ghost_tetromino = dataclasses.replace(self.current_tetromino)
+        ghost_tetromino.rotation_index = self.current_tetromino.rotation_index
+        while ghost_tetromino.bottom + 1 < self.board.height and \
+                all(self.board[ghost_tetromino.y + j + 1][ghost_tetromino.x + i] is None
+                    for i, j in ghost_tetromino.rotation if ghost_tetromino.y + j >= 0):
+            ghost_tetromino.move_down()
+        return ghost_tetromino
+
     def to_json(self) -> Dict[str, Any]:
         return {
             'current_tetromino': self.current_tetromino.to_json(),
             'held_tetromino': self.held_tetromino.to_json() if self.held_tetromino else None,
+            'ghost_tetromino': self.ghost_tetromino.to_json(),
             'tetromino_queue': self.tetromino_queue.to_json(),
             'board': self.board.to_json(),
             'stats': {

@@ -26,6 +26,14 @@ class Board(Surface):
             self.blit(self.images.border, 0, j * block_size)
             self.blit(self.images.border, (width + 1) * block_size, j * block_size)
 
+    def draw_tetromino(self, tetromino: Dict, image_name: str = None) -> None:
+        image = self.images[image_name or tetromino['name']]
+        x = tetromino['x']
+        y = tetromino['y']
+        for i, j in tetromino['rotation']:
+            if y + j + 1 > 0:
+                self.blit(image, (x + i + 1) * self.block_size, (y + j + 1) * self.block_size)
+
     def update(self, info: Dict) -> None:
         self.fill(self.background_color, self.block_size, self.block_size,
                   self.width - 2 * self.block_size, self.height - 2 * self.block_size)
@@ -38,20 +46,15 @@ class Board(Surface):
                 image = self.images[cell]
                 self.blit(image, (i + 1) * self.block_size, (j + 1) * self.block_size)
 
-        current_tetromino = info['current_tetromino']
-        image = self.images[current_tetromino['name']]
-        x = current_tetromino['x']
-        y = current_tetromino['y']
-        for i, j in current_tetromino['rotation']:
-            if y + j + 1 > 0:
-                self.blit(image, (x + i + 1) * self.block_size, (y + j + 1) * self.block_size)
+        self.draw_tetromino(info['ghost_tetromino'], image_name='ghost')
+        self.draw_tetromino(info['current_tetromino'])
 
 
 class Game(Screen):
     def __init__(self) -> None:
         height = Consts.display_height * 0.9
         width = height * 4 / 3  # 4:3 ratio
-        super().__init__(width, height, fps=60)
+        super().__init__(width, height, fps=100)
 
         self.board = Board(width=10, height=20, block_size=40)
 
