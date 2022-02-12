@@ -20,7 +20,7 @@ class Tetris:
         self.held_tetromino = None
         self.can_hold = True
 
-        self.cleared_lines = 30
+        self.cleared_lines = 0
         self.score = 0
 
     def lock(self) -> None:
@@ -73,6 +73,7 @@ class Tetris:
                 self.current_tetromino.rotate_right()
                 self.current_tetromino.x += x_offset
                 self.current_tetromino.y += y_offset
+                break
 
     def rotate_left(self) -> None:
         for x_offset, y_offset in self.current_tetromino.left_rotation_offsets:
@@ -80,6 +81,7 @@ class Tetris:
                 self.current_tetromino.rotate_left()
                 self.current_tetromino.x += x_offset
                 self.current_tetromino.y += y_offset
+                break
 
     def soft_drop(self) -> None:
         if self.can_move_down:

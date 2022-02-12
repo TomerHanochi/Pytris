@@ -55,7 +55,8 @@ class TetrisController:
         if not self.__tetris.can_move_down:
             if self.__time_since_cant_move_down == 0:
                 self.__time_since_cant_move_down = now
-            elif now - self.__time_since_cant_move_down > self.lock_delay:
+            elif not (self.__tetris.can_move_right or self.__tetris.can_move_left) \
+                    or now - self.__time_since_cant_move_down > self.lock_delay:
                 self.__tetris.lock()
                 self.__time_since_cant_move_down = 0
 
