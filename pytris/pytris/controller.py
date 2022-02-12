@@ -111,7 +111,7 @@ class TetrisController:
 
     @property
     def move_down_cooldown(self) -> float:
-        return (0.8 - ((self.__tetris.level - 1) * 0.007)) ** (self.__tetris.level - 1)
+        return (0.807 - self.__tetris.level * 0.007) ** (self.__tetris.level - 1)
 
     @property
     def soft_drop_cooldown(self) -> float:
@@ -119,11 +119,11 @@ class TetrisController:
 
     @property
     def move_horizontal_cooldown(self) -> float:
-        return 0.15
+        return 0.15 - self.__tetris.level * 0.0075
 
     @property
     def rotate_cooldown(self) -> float:
-        return 0.3
+        return 0.2
 
     @property
     def lock_delay(self) -> float:

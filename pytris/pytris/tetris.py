@@ -137,7 +137,8 @@ class Tetris:
 
     @property
     def level(self) -> int:
-        return self.cleared_lines // 10
+        """ Returns the current level of the game, max is 20. """
+        return min(self.cleared_lines // 10 + 1, 20)
 
     @property
     def ghost_tetromino(self) -> ActiveTetromino:
@@ -157,9 +158,8 @@ class Tetris:
             'tetromino_queue': self.tetromino_queue.to_json(),
             'board': self.board.to_json(),
             'stats': {
-                'cleared_rows': 0,
-                'level': 0,
-                'score': 0,
-                'high_score': 0,
+                'cleared_lines': self.cleared_lines,
+                'level': self.level,
+                'score': self.score,
             },
         }
