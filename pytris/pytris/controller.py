@@ -119,7 +119,7 @@ class TetrisController:
 
     @property
     def move_horizontal_cooldown(self) -> float:
-        return 0.15 - self.__tetris.level * 0.0075
+        return 0.15 - self.__tetris.level * 0.005
 
     @property
     def rotate_cooldown(self) -> float:
