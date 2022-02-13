@@ -2,7 +2,6 @@ from functools import cached_property
 from typing import Dict, Iterable, Tuple
 
 from pytris.controller import TetrisController
-from pyview import DISPLAY_HEIGHT
 from pyview.key import Key
 from pyview.screen import Screen
 from pyview.widget import Widget
@@ -33,7 +32,8 @@ class Border(Widget):
 
 class Game(Screen):
     def __init__(self) -> None:
-        super().__init__(DISPLAY_HEIGHT, DISPLAY_HEIGHT * 0.75, fps=100)
+        super().__init__(Consts.game_screen_width, Consts.game_screen_height, fps=100)
+        self.block_size = self.height * 0.8 // (Consts.board_height + 2)
 
     def draw_board(self, info: Dict) -> None:
         self.board.reset()
@@ -110,18 +110,18 @@ class Game(Screen):
 
     @cached_property
     def board(self) -> Border:
-        return Border(self.width * .5, self.height * .5, width=12, height=22, centered=True)
+        return Border(self.width * .5, self.height * .5, Consts.board_width + 2, Consts.board_height + 2, centered=True)
 
     @cached_property
     def held(self) -> Border:
-        return Border(self.board.right + Consts.block_size, self.board.top, width=7, height=6)
+        return Border(self.board.right + Consts.block_size, self.board.top, 7, 6)
 
     @cached_property
     def next(self) -> Border:
-        next = Border(self.board.left - Consts.block_size, self.board.top, width=7, height=(Consts.next_size + 1) * 3)
+        next = Border(self.board.left - Consts.block_size, self.board.top, 7, (Consts.next_size + 1) * 3)
         next.x -= next.width
         return next
 
     @cached_property
     def tetris(self) -> TetrisController:
-        return TetrisController(10, 20)
+        return TetrisController(Consts.board_width, Consts.board_height)
