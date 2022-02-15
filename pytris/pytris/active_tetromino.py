@@ -71,7 +71,7 @@ class ActiveTetromino(Tetromino):
 
     @property
     def visible_rotation(self) -> Tuple[Tuple[int, int], ...]:
-        return tuple((i, j) for i, j in self.rotation if self.y + j + 1 > 0)
+        return tuple((i, j) for i, j in self.rotation if self.y + j >= 0)
 
     @property
     def right(self) -> int:

@@ -115,13 +115,13 @@ class Tetris:
     def can_move_right(self) -> bool:
         return self.current_tetromino.right + 1 < self.board.width and \
                all(self.board[self.current_tetromino.y + j][self.current_tetromino.x + i + 1] is None
-                   for i, j in self.current_tetromino.rotation)
+                   for i, j in self.current_tetromino.rotation if self.current_tetromino.y + j >= 0)
 
     @property
     def can_move_left(self) -> bool:
         return self.current_tetromino.left > 0 and \
                all(self.board[self.current_tetromino.y + j][self.current_tetromino.x + i - 1] is None
-                   for i, j in self.current_tetromino.rotation)
+                   for i, j in self.current_tetromino.rotation if self.current_tetromino.y + j >= 0)
 
     def can_rotate(self, rotation: Tuple[Tuple[int, int], ...], x_offset: int, y_offset: int) -> bool:
         return all(0 < self.current_tetromino.y + j + y_offset < self.board.height and
