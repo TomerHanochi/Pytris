@@ -26,8 +26,7 @@ class Border(Widget):
 
     def draw_tetromino(self, name: str, x: float, y: float, rotation: Iterable[Tuple[int, int]]) -> None:
         for i, j in rotation:
-            if y + j + 1 > 0:
-                self.blit(Images[name], x + (i + 1) * Consts.block_size, y + (j + 1) * Consts.block_size)
+            self.blit(Images[name], x + (i + 1) * Consts.block_size, y + (j + 1) * Consts.block_size)
 
 
 class Stats(Widget):
@@ -71,7 +70,7 @@ class Game(Screen):
                                   ghost_tetromino['rotation'])
         current_tetromino = info['current_tetromino']
         self.board.draw_tetromino(current_tetromino['name'], current_tetromino['x'] * Consts.block_size,
-                                  current_tetromino['y'] * Consts.block_size, current_tetromino['rotation'])
+                                  current_tetromino['y'] * Consts.block_size, current_tetromino['visible_rotation'])
         self.blit(self.board, self.board.x, self.board.y)
 
     def draw_next(self, info: Dict) -> None:

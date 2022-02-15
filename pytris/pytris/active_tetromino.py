@@ -70,6 +70,10 @@ class ActiveTetromino(Tetromino):
         return ROTATION_OFFSETS[self.name][self.rotation_index, self.left_rotation_index]
 
     @property
+    def visible_rotation(self) -> Tuple[Tuple[int, int], ...]:
+        return tuple((i, j) for i, j in self.rotation if self.y + j + 1 > 0)
+
+    @property
     def right(self) -> int:
         """ Returns the right index in the current rotation. """
         return self.x + super().right
@@ -117,5 +121,6 @@ class ActiveTetromino(Tetromino):
         return {
             'x': self.x,
             'y': self.y,
+            'visible_rotation': self.visible_rotation,
             **super().to_json()
         }
