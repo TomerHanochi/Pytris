@@ -124,10 +124,10 @@ class Tetris:
                    for i, j in self.current_tetromino.rotation if self.current_tetromino.y + j >= 0)
 
     def can_rotate(self, rotation: Tuple[Tuple[int, int], ...], x_offset: int, y_offset: int) -> bool:
-        return all(0 < self.current_tetromino.y + j + y_offset < self.board.height and
+        return all(self.current_tetromino.y + j + y_offset < self.board.height and
                    0 < self.current_tetromino.x + i + x_offset < self.board.width and
                    self.board[self.current_tetromino.y + j + y_offset][self.current_tetromino.x + i + x_offset] is None
-                   for i, j in rotation)
+                   for i, j in rotation if self.current_tetromino.y + j >= 0)
 
     @property
     def terminal(self) -> bool:
