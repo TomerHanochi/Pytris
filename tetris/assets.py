@@ -1,24 +1,34 @@
 import os
-from typing import Tuple, Type, TypeVar, Union
+from typing import Any
 
-from pygame.font import Font
-from pygame.mixer import Sound
-
+from pyview.font import Font
 from pyview.surface import Surface
 from tetris.consts import Consts
 
-AssetType = TypeVar('AssetType', Surface, Font, Sound, Union[Tuple[int, int, int], Tuple[int, int, int, int]])
 
-
-class Assets(Type[AssetType]):
-    def __getitem__(cls, key: str) -> AssetType:
+class AssetsMeta(type):
+    def __getitem__(self, key: str) -> Any:
         try:
-            return getattr(cls, key)
+            return getattr(self, key)
         except KeyError:
             raise AttributeError(f'No asset named {key}')
 
 
-class Images(metaclass=Assets):
+class Assets(metaclass=AssetsMeta):
+    pass
+
+
+class Fonts(Assets):
+    pixel = Font(os.path.join(Consts.fonts_directory, 'pixelboy.ttf'))
+
+
+class Colors(Assets):
+    transparent = (0, 0, 0, 0)
+    black = (0, 0, 0)
+    white = (255, 255, 255)
+
+
+class Images(Assets):
     O = Surface.load(os.path.join(Consts.images_directory, 'O.png'), Consts.block_size, Consts.block_size)
     I = Surface.load(os.path.join(Consts.images_directory, 'I.png'), Consts.block_size, Consts.block_size)
     T = Surface.load(os.path.join(Consts.images_directory, 'T.png'), Consts.block_size, Consts.block_size)
@@ -30,15 +40,5 @@ class Images(metaclass=Assets):
     ghost = Surface.load(os.path.join(Consts.images_directory, 'ghost.png'), Consts.block_size, Consts.block_size)
 
 
-class Colors(metaclass=Assets):
-    transparent = (0, 0, 0, 0)
-    black = (0, 0, 0)
-    white = (255, 255, 255)
-
-
-class Fonts(metaclass=Assets):
-    pass
-
-
-class Sounds(metaclass=Assets):
+class Sounds(Assets):
     pass

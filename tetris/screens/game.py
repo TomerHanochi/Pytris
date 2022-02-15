@@ -5,7 +5,7 @@ from pytris.controller import TetrisController
 from pyview.key import Key
 from pyview.screen import Screen
 from pyview.widget import Widget
-from tetris.assets import Colors, Images
+from tetris.assets import Colors, Fonts, Images
 from tetris.consts import Consts
 
 
@@ -28,6 +28,27 @@ class Border(Widget):
         for i, j in rotation:
             if y + j + 1 > 0:
                 self.blit(Images[name], x + (i + 1) * Consts.block_size, y + (j + 1) * Consts.block_size)
+
+
+class Stats(Widget):
+    font_size = Consts.block_size * 1.25
+    stats = {
+        'cleared_lines': Fonts.pixel.render('CLEARED LINES', Colors.white, font_size),
+        'level': Fonts.pixel.render('LEVEL', Colors.white, font_size),
+        'score': Fonts.pixel.render('SCORE', Colors.white, font_size),
+    }
+
+    def __init__(self, x: float, y: float, centered: bool = False) -> None:
+        super().__init__(x, y, max(s.width for s in self.stats.values()), self.font_size * 6, centered=centered)
+        self.fill(Colors.transparent)
+        for i, stat in enumerate(self.stats.values()):
+            self.blit(stat, 0, 2 * i * self.font_size)
+
+    def update(self, info: Dict) -> None:
+        for i, stat_value in enumerate(info['stats'].values()):
+            stat = Fonts.pixel.render(f'{stat_value}', Colors.white, self.font_size)
+            self.fill(Colors.transparent, 0, (2 * i + 1) * self.font_size, self.width, self.font_size)
+            self.blit(stat, 0, (2 * i + 1) * self.font_size)
 
 
 class Game(Screen):
@@ -68,6 +89,10 @@ class Game(Screen):
                                      Consts.block_size, tetromino['rotation'])
         self.blit(self.held, self.held.x, self.held.y)
 
+    def draw_stats(self, info: Dict) -> None:
+        self.stats.update(info)
+        self.blit(self.stats, self.stats.x, self.stats.y)
+
     def update(self) -> None:
         self.fill(Colors.black)
 
@@ -75,6 +100,7 @@ class Game(Screen):
         self.draw_board(info)
         self.draw_next(info)
         self.draw_held(info)
+        self.draw_stats(info)
 
         self.tetris.update()
 
@@ -121,6 +147,10 @@ class Game(Screen):
         next = Border(self.board.left - Consts.block_size, self.board.top, 7, (Consts.next_size + 1) * 3)
         next.x -= next.width
         return next
+
+    @cached_property
+    def stats(self) -> Stats:
+        return Stats(self.board.right + Consts.block_size, self.held.bottom + Consts.block_size)
 
     @cached_property
     def tetris(self) -> TetrisController:
