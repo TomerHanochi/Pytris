@@ -14,8 +14,8 @@ class Font:
         if background is None:
             return rendered_text
 
-        offset = 0.075
-        tmp = Surface(rendered_text.width * (1 + offset * 2), rendered_text.height * (1 + offset * 2))
+        offset = rendered_text.height * 0.1
+        tmp = Surface(rendered_text.width + offset * 2, rendered_text.height + offset * 2)
         tmp.fill(background)
-        tmp.blit(rendered_text, rendered_text.width * offset, rendered_text.height * offset)
+        tmp.blit(rendered_text, offset, offset)
         return tmp

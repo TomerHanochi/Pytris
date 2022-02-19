@@ -13,7 +13,8 @@ from tetris.consts import Consts
 class Border(Widget):
     def __init__(self, x: float, y: float, width: int, height: int, title: Surface = None, centered: bool = False) -> None:
         self.offset = 0 if title is None else title.height + Consts.block_size
-        super().__init__(x, y, width * Consts.block_size, height * Consts.block_size + self.offset, centered=centered)
+        super().__init__(x, y, width=width * Consts.block_size, height=height * Consts.block_size + self.offset,
+                         centered=centered)
         self.fill(Colors.transparent)
 
         if title is not None:
@@ -53,7 +54,7 @@ class Stats(Widget):
     }
 
     def __init__(self, x: float, y: float, centered: bool = False) -> None:
-        super().__init__(x, y, max(s.width for s in self.stats.values()), self.font_size * 6, centered=centered)
+        super().__init__(x, y, width=max(s.width for s in self.stats.values()), height=self.font_size * 6, centered=centered)
         self.fill(Colors.transparent)
         for i, stat in enumerate(self.stats.values()):
             self.blit(stat, 0, 2 * i * self.font_size)
@@ -81,14 +82,14 @@ class Game(Screen):
         current_tetromino = info['current_tetromino']
         self.board.draw_tetromino(current_tetromino['name'], current_tetromino['x'] * Consts.block_size,
                                   current_tetromino['y'] * Consts.block_size, current_tetromino['visible_rotation'])
-        self.blit(self.board, self.board.x, self.board.y)
+        self.blit_widget(self.board)
 
     def draw_next(self, info: Dict) -> None:
         self.next.reset()
         for i, tetromino in enumerate(info['tetromino_queue'][:Consts.next_size]):
             self.next.draw_tetromino(tetromino['name'], (self.next.width - (tetromino['width'] + 2) * Consts.block_size) * .5,
                                      (i * 3 + 1) * Consts.block_size, tetromino['rotation'])
-        self.blit(self.next, self.next.x, self.next.y)
+        self.blit_widget(self.next)
 
     def draw_held(self, info: Dict) -> None:
         self.held.reset()
@@ -96,11 +97,11 @@ class Game(Screen):
         if tetromino is not None:
             self.held.draw_tetromino(tetromino['name'], (self.held.width - (tetromino['width'] + 2) * Consts.block_size) * .5,
                                      Consts.block_size, tetromino['rotation'])
-        self.blit(self.held, self.held.x, self.held.y)
+        self.blit_widget(self.held)
 
     def draw_stats(self, info: Dict) -> None:
         self.stats.update(info)
-        self.blit(self.stats, self.stats.x, self.stats.y)
+        self.blit_widget(self.stats)
 
     def update(self) -> None:
         self.fill(Colors.black)

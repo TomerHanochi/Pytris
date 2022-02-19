@@ -1,6 +1,9 @@
-from typing import Tuple
+from typing import TYPE_CHECKING, Tuple
 
 import pygame as pg
+
+if TYPE_CHECKING:
+    from pyview.widget import Widget
 
 
 class Surface:
@@ -17,6 +20,9 @@ class Surface:
             y -= surface.height / 2
 
         self.image.blit(surface.image, (x, y))
+
+    def blit_widget(self, widget: 'Widget') -> None:
+        self.blit(widget, widget.x, widget.y)
 
     def fill(self, color: tuple, x: float = 0, y: float = 0, width: float = None,
              height: float = None, centered: bool = False) -> None:
