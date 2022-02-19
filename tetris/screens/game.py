@@ -4,29 +4,44 @@ from typing import Dict, Iterable, Tuple
 from pytris.controller import TetrisController
 from pyview.key import Key
 from pyview.screen import Screen
+from pyview.surface import Surface
 from pyview.widget import Widget
 from tetris.assets import Colors, Fonts, Images
 from tetris.consts import Consts
 
 
 class Border(Widget):
-    def __init__(self, x: float, y: float, width: int, height: int, centered: bool = False) -> None:
-        super().__init__(x, y, width * Consts.block_size, height * Consts.block_size, centered=centered)
+    def __init__(self, x: float, y: float, width: int, height: int, title: Surface = None, centered: bool = False) -> None:
+        self.offset = 0 if title is None else title.height + Consts.block_size
+        super().__init__(x, y, width * Consts.block_size, height * Consts.block_size + self.offset, centered=centered)
         self.fill(Colors.transparent)
+
+        if title is not None:
+            self.blit(title, self.width * .5, title.height * .5, centered=True)
+
         for i in range(width + 2):
-            self.blit(Images.border, i * Consts.block_size, 0)
-            self.blit(Images.border, i * Consts.block_size, (height - 1) * Consts.block_size)
+            self.blit(Images.border, i * Consts.block_size, self.offset)
+            self.blit(Images.border, i * Consts.block_size, (height - 1) * Consts.block_size + self.offset)
         for j in range(1, height - 1):
-            self.blit(Images.border, 0, j * Consts.block_size)
-            self.blit(Images.border, (width - 1) * Consts.block_size, j * Consts.block_size)
+            self.blit(Images.border, 0, j * Consts.block_size + self.offset)
+            self.blit(Images.border, (width - 1) * Consts.block_size, j * Consts.block_size + self.offset)
 
     def reset(self) -> None:
-        self.fill(Colors.transparent, Consts.block_size, Consts.block_size, self.width - Consts.block_size * 2,
-                  self.height - Consts.block_size * 2)
+        self.fill(Colors.transparent, Consts.block_size, self.offset + Consts.block_size,
+                  self.width - Consts.block_size * 2, self.height - Consts.block_size * 2 - self.offset)
+
+    def draw_cells(self, cells: Iterable[Iterable[str]]) -> None:
+        for j, row in enumerate(cells):
+            for i, cell in enumerate(row):
+                if cell is None:
+                    continue
+
+                image = Images[cell]
+                self.blit(image, (i + 1) * Consts.block_size, (j + 1) * Consts.block_size + self.offset)
 
     def draw_tetromino(self, name: str, x: float, y: float, rotation: Iterable[Tuple[int, int]]) -> None:
         for i, j in rotation:
-            self.blit(Images[name], x + (i + 1) * Consts.block_size, y + (j + 1) * Consts.block_size)
+            self.blit(Images[name], x + (i + 1) * Consts.block_size, y + (j + 1) * Consts.block_size + self.offset)
 
 
 class Stats(Widget):
@@ -57,13 +72,8 @@ class Game(Screen):
 
     def draw_board(self, info: Dict) -> None:
         self.board.reset()
-        for j, row in enumerate(info['board']['cells']):
-            for i, cell in enumerate(row):
-                if cell is None:
-                    continue
 
-                image = Images[cell]
-                self.board.blit(image, (i + 1) * Consts.block_size, (j + 1) * Consts.block_size)
+        self.board.draw_cells(info['board']['cells'])
 
         ghost_tetromino = info['ghost_tetromino']
         self.board.draw_tetromino('ghost', ghost_tetromino['x'] * Consts.block_size, ghost_tetromino['y'] * Consts.block_size,
@@ -135,21 +145,37 @@ class Game(Screen):
 
     @cached_property
     def board(self) -> Border:
-        return Border(self.width * .5, self.height * .5, Consts.board_width + 2, Consts.board_height + 2, centered=True)
+        return Border(x=self.width * .5,
+                      y=self.height * .5,
+                      width=Consts.board_width + 2,
+                      height=Consts.board_height + 2,
+                      title=Fonts.pixel.render('TETRIS', Colors.white, 4.25 * Consts.block_size),
+                      centered=True)
 
     @cached_property
     def held(self) -> Border:
-        return Border(self.board.right + Consts.block_size, self.board.top, 7, 6)
+        widget = Border(x=self.board.right + Consts.block_size,
+                        y=self.board.top + self.board.offset,
+                        width=7,
+                        height=6,
+                        title=Fonts.pixel.render('HELD', Colors.white, 2.5 * Consts.block_size))
+        widget.y -= widget.offset
+        return widget
 
     @cached_property
     def next(self) -> Border:
-        next = Border(self.board.left - Consts.block_size, self.board.top, 7, (Consts.next_size + 1) * 3)
-        next.x -= next.width
-        return next
+        widget = Border(x=self.board.left - 8 * Consts.block_size,
+                        y=self.board.top + self.board.offset,
+                        width=7,
+                        height=(Consts.next_size + 1) * 3,
+                        title=Fonts.pixel.render('NEXT', Colors.white, 2.5 * Consts.block_size))
+        widget.y -= widget.offset
+        return widget
 
     @cached_property
     def stats(self) -> Stats:
-        return Stats(self.board.right + Consts.block_size, self.held.bottom + Consts.block_size)
+        return Stats(x=self.board.right + Consts.block_size,
+                     y=self.held.bottom + Consts.block_size)
 
     @cached_property
     def tetris(self) -> TetrisController:
