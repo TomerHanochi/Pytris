@@ -96,6 +96,9 @@ class TetrisController:
     def hold(self) -> None:
         self.__tetris.hold()
 
+    def reset(self) -> None:
+        self.__tetris.__init__(self.__tetris.board.width, self.__tetris.board.height)
+
     def pause_or_resume(self) -> None:
         if self.paused:
             elapsed_time = time.perf_counter() - self.__time_since_pause

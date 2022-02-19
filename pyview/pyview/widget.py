@@ -1,12 +1,14 @@
+from typing import Union
+
 import pygame as pg
 
 from pyview.surface import Surface
 
 
 class Widget(Surface):
-    def __init__(self, x: float, y: float, width: float = None, height: float = None, surface: pg.Surface = None,
-                 centered: bool = False) -> None:
-        super().__init__(width, height, surface)
+    def __init__(self, x: float, y: float, width: float = None, height: float = None,
+                 surface: Union[pg.Surface, Surface] = None, centered: bool = False) -> None:
+        super().__init__(width, height, surface.image if isinstance(surface, Surface) else surface)
 
         self.x = x
         self.y = y

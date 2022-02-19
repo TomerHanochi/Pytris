@@ -110,8 +110,13 @@ class Game(Screen):
         self.draw_next(info)
         self.draw_held(info)
         self.draw_stats(info)
+        self.blit(self.reset_button, self.reset_button.x, self.reset_button.y)
 
         self.tetris.update()
+
+    def mouse_down(self, x: float, y: float) -> None:
+        if self.reset_button.overlap(x, y):
+            self.tetris.reset()
 
     def key_down(self, key: Key) -> None:
         if key is Key.RIGHT_ARROW:
@@ -176,6 +181,12 @@ class Game(Screen):
     def stats(self) -> Stats:
         return Stats(x=self.board.right + Consts.block_size,
                      y=self.held.bottom + Consts.block_size)
+
+    @cached_property
+    def reset_button(self) -> Widget:
+        return Widget(x=self.board.right + Consts.block_size,
+                      y=self.stats.bottom,
+                      surface=Fonts.pixel.render('RESET', Colors.black, Consts.block_size * 3, background=Colors.white))
 
     @cached_property
     def tetris(self) -> TetrisController:
