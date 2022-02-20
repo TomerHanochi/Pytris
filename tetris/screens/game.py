@@ -111,7 +111,7 @@ class Game(Screen):
         self.draw_next(info)
         self.draw_held(info)
         self.draw_stats(info)
-        self.blit(self.reset_button, self.reset_button.x, self.reset_button.y)
+        self.blit_widget(self.reset_button)
 
         self.tetris.update()
 
