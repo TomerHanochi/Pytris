@@ -28,7 +28,7 @@ class Border(Widget):
             self.blit(Images.border, (width - 1) * Consts.block_size, j * Consts.block_size + self.offset)
 
     def reset(self) -> None:
-        self.fill(Colors.transparent, Consts.block_size, self.offset + Consts.block_size,
+        self.fill(Colors.transparent, Consts.block_size, Consts.block_size + self.offset,
                   self.width - Consts.block_size * 2, self.height - Consts.block_size * 2 - self.offset)
 
     def draw_cells(self, cells: Iterable[Iterable[str]]) -> None:
@@ -46,24 +46,21 @@ class Border(Widget):
 
 
 class Stats(Widget):
-    font_size = Consts.block_size * 1.25
-    stats = {
-        'cleared_lines': Fonts.pixel.render('CLEARED LINES', Colors.white, font_size),
-        'level': Fonts.pixel.render('LEVEL', Colors.white, font_size),
-        'score': Fonts.pixel.render('SCORE', Colors.white, font_size),
-    }
+    font_size = Consts.block_size * 0.75
+    spacing = Consts.block_size * 1.5
 
     def __init__(self, x: float, y: float, centered: bool = False) -> None:
-        super().__init__(x, y, width=max(s.width for s in self.stats.values()), height=self.font_size * 6, centered=centered)
-        self.fill(Colors.transparent)
-        for i, stat in enumerate(self.stats.values()):
-            self.blit(stat, 0, 2 * i * self.font_size)
+        super().__init__(x, y, centered=centered, surface=Fonts.pixel.render(text='CLEARED LINES\nLEVEL\nSCORE\n',
+                                                                             color=Colors.white,
+                                                                             size=self.font_size,
+                                                                             spacing=self.spacing,
+                                                                             align='ltr'))
 
     def update(self, info: Dict) -> None:
         for i, stat_value in enumerate(info['stats'].values()):
             stat = Fonts.pixel.render(f'{stat_value}', Colors.white, self.font_size)
-            self.fill(Colors.transparent, 0, (2 * i + 1) * self.font_size, self.width, self.font_size)
-            self.blit(stat, 0, (2 * i + 1) * self.font_size)
+            self.fill(Colors.transparent, 0, (i + 1) * self.font_size + i * self.spacing, self.width, self.spacing)
+            self.blit(stat, 0, (i + 1) * self.font_size + (i + .5) * self.spacing - stat.height * .5)
 
 
 class Game(Screen):
@@ -78,7 +75,7 @@ class Game(Screen):
 
         ghost_tetromino = info['ghost_tetromino']
         self.board.draw_tetromino('ghost', ghost_tetromino['x'] * Consts.block_size, ghost_tetromino['y'] * Consts.block_size,
-                                  ghost_tetromino['rotation'])
+                                  ghost_tetromino['visible_rotation'])
         current_tetromino = info['current_tetromino']
         self.board.draw_tetromino(current_tetromino['name'], current_tetromino['x'] * Consts.block_size,
                                   current_tetromino['y'] * Consts.block_size, current_tetromino['visible_rotation'])
@@ -155,7 +152,7 @@ class Game(Screen):
                       y=self.height * .5,
                       width=Consts.board_width + 2,
                       height=Consts.board_height + 2,
-                      title=Fonts.pixel.render('TETRIS', Colors.white, 4.25 * Consts.block_size),
+                      title=Fonts.pixel.render('TETRIS', Colors.white, 2.125 * Consts.block_size),
                       centered=True)
 
     @cached_property
@@ -164,7 +161,7 @@ class Game(Screen):
                         y=self.board.top + self.board.offset,
                         width=7,
                         height=6,
-                        title=Fonts.pixel.render('HELD', Colors.white, 2.5 * Consts.block_size))
+                        title=Fonts.pixel.render('HELD', Colors.white, 1.25 * Consts.block_size))
         widget.y -= widget.offset
         return widget
 
@@ -174,7 +171,7 @@ class Game(Screen):
                         y=self.board.top + self.board.offset,
                         width=7,
                         height=(Consts.next_size + 1) * 3,
-                        title=Fonts.pixel.render('NEXT', Colors.white, 2.5 * Consts.block_size))
+                        title=Fonts.pixel.render('NEXT', Colors.white, 1.25 * Consts.block_size))
         widget.y -= widget.offset
         return widget
 
@@ -186,8 +183,8 @@ class Game(Screen):
     @cached_property
     def reset_button(self) -> Widget:
         return Widget(x=self.board.right + Consts.block_size,
-                      y=self.stats.bottom,
-                      surface=Fonts.pixel.render('RESET', Colors.black, Consts.block_size * 3, background=Colors.white))
+                      y=self.stats.bottom + Consts.block_size,
+                      surface=Fonts.pixel.render('RESET', Colors.black, Consts.block_size * 1.5, background=Colors.white))
 
     @cached_property
     def tetris(self) -> TetrisController:
