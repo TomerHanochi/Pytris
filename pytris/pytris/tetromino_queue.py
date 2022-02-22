@@ -9,7 +9,7 @@ from pytris.tetromino import NAMES, Tetromino
 @dataclass
 class TetrominoQueue(Queue[Tetromino]):
     def __init__(self) -> None:
-        super().__init__(())
+        super().__init__()
 
     def update(self) -> None:
         bag = NAMES.copy()

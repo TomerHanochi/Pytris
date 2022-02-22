@@ -30,8 +30,8 @@ class Array(Generic[T]):
 
 
 class Queue(Generic[T]):
-    def __init__(self, iterator: Iterator[T]) -> None:
-        self.__values = list(iterator)
+    def __init__(self, iterator: Iterator[T] = None) -> None:
+        self.__values = list(iterator or ())
 
     def __getitem__(self, index: int) -> T:
         return self.__values[index]
