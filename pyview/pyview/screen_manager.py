@@ -32,9 +32,6 @@ class ScreenManager:
 
     def set_display(self) -> None:
         """ Resets screen as main screen. """
-        pg.display.quit()
-        pg.display.init()
-
         self.current_screen.set_as_main()
 
     def handle_event(self, event: pg.event.Event) -> None:

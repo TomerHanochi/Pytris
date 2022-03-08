@@ -28,7 +28,8 @@ class Tetris:
             self.tetromino_queue.update()
 
         for i, j in self.current_tetromino.rotation:
-            self.board[self.current_tetromino.y + j][self.current_tetromino.x + i] = self.current_tetromino.name
+            if self.current_tetromino.y + j >= 0:
+                self.board[self.current_tetromino.y + j][self.current_tetromino.x + i] = self.current_tetromino.name
         self.clear_rows()
 
         self.current_tetromino = ActiveTetromino.from_tetromino(self.tetromino_queue.pop(), 3, -4)
@@ -57,15 +58,15 @@ class Tetris:
 
     def move_down(self) -> None:
         if self.can_move_down:
-            self.current_tetromino.move_down()
+            self.current_tetromino.y += 1
 
     def move_right(self) -> None:
         if self.can_move_right:
-            self.current_tetromino.move_right()
+            self.current_tetromino.x += 1
 
     def move_left(self) -> None:
         if self.can_move_left:
-            self.current_tetromino.move_left()
+            self.current_tetromino.x -= 1
 
     def rotate_right(self) -> None:
         for x_offset, y_offset in self.current_tetromino.right_rotation_offsets:
@@ -103,6 +104,18 @@ class Tetris:
             self.held_tetromino = Tetromino(self.current_tetromino.name)
             self.current_tetromino = ActiveTetromino.from_tetromino(new_tetromino, 3, -4)
             self.can_hold = False
+
+    def unhold(self) -> None:
+        if self.held_tetromino is None:
+            return
+
+        new_tetromino = self.held_tetromino
+        self.held_tetromino = Tetromino(self.current_tetromino.name)
+        self.current_tetromino = ActiveTetromino.from_tetromino(new_tetromino, 3, -4)
+        self.can_hold = True
+
+    def reset(self) -> None:
+        self.__init__(self.board.width, self.board.height)
 
     @property
     def can_move_down(self) -> bool:
@@ -145,10 +158,15 @@ class Tetris:
         while ghost_tetromino.bottom + 1 < self.board.height and \
                 all(self.board[ghost_tetromino.y + j + 1][ghost_tetromino.x + i] is None
                     for i, j in ghost_tetromino.rotation if ghost_tetromino.y + j >= 0):
-            ghost_tetromino.move_down()
+            ghost_tetromino.y += 1
         return ghost_tetromino
 
     def to_json(self) -> Dict[str, Any]:
+        self.current_tetromino.to_json()
+        self.held_tetromino.to_json() if self.held_tetromino else None
+        self.ghost_tetromino.to_json()
+        self.tetromino_queue.to_json()
+        self.board.to_json()
         return {
             'current_tetromino': self.current_tetromino.to_json(),
             'held_tetromino': self.held_tetromino.to_json() if self.held_tetromino else None,

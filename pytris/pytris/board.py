@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Optional
 
-from pytris.generic_data_structures import Array
+from pytris.utils.array import Array
 
 
 class Board(Array[Array[Optional[str]]]):
@@ -22,13 +22,6 @@ class Board(Array[Array[Optional[str]]]):
     def full_rows(self) -> List[int]:
         return [row for row in range(self.height) if self.is_full(row)]
 
-    def to_json(self) -> Dict[str, Any]:
-        return {
-            'width': self.width,
-            'height': self.height,
-            'cells': [[cell for cell in row] for row in self],
-        }
-
     @property
     def width(self) -> int:
         return self.__width
@@ -36,3 +29,10 @@ class Board(Array[Array[Optional[str]]]):
     @property
     def height(self) -> int:
         return self.__height
+
+    def to_json(self) -> Dict[str, Any]:
+        return {
+            'width': self.width,
+            'height': self.height,
+            'cells': [[cell for cell in row] for row in self],
+        }

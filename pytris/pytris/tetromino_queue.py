@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from random import shuffle
 from typing import Any, Dict, List
 
-from pytris.generic_data_structures import Queue
 from pytris.tetromino import NAMES, Tetromino
+from pytris.utils.queue import Queue
 
 
 @dataclass

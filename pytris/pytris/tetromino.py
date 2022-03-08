@@ -43,6 +43,9 @@ ROTATIONS = {
     ),
 }
 NAMES = list(ROTATIONS.keys())
+Block = Tuple[int, int]
+Rotation = Tuple[Block, Block, Block, Block]
+Rotations = Tuple[Rotation, ...]
 
 
 @dataclass
@@ -51,9 +54,13 @@ class Tetromino:
     rotation_index: int = field(init=False, default=0)
 
     @property
-    def rotation(self) -> Tuple[Tuple[int, int], ...]:
+    def rotations(self) -> Rotations:
+        return ROTATIONS[self.name]
+
+    @property
+    def rotation(self) -> Rotation:
         """ Returns the current rotation of the Tetromino. """
-        return ROTATIONS[self.name][self.rotation_index]
+        return self.rotations[self.rotation_index]
 
     @property
     def right(self) -> int:

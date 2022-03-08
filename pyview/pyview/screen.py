@@ -1,8 +1,8 @@
 import pygame as pg
 
-from classproperty import classproperty
 from pyview.key import Key
 from pyview.surface import Surface
+from pyview.utils.classproperty import classproperty
 
 SCREEN_REDIRECT = pg.event.custom_type()
 

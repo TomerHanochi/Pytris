@@ -43,7 +43,7 @@ class ActiveTetromino(Tetromino):
 
     @cached_property
     def num_of_rotations(self) -> int:
-        return len(ROTATIONS[self.name])
+        return len(self.rotations)
 
     @property
     def right_rotation_index(self) -> int:
@@ -92,15 +92,6 @@ class ActiveTetromino(Tetromino):
     def bottom(self) -> int:
         """ Returns the bottom index in the current rotation. """
         return self.y + super().bottom
-
-    def move_down(self) -> None:
-        self.y += 1
-
-    def move_right(self) -> None:
-        self.x += 1
-
-    def move_left(self) -> None:
-        self.x -= 1
 
     def rotate_right(self) -> None:
         self.rotation_index = self.right_rotation_index
