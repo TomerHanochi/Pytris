@@ -68,7 +68,7 @@ class Game(Screen):
         super().__init__(Consts.game_screen_width, Consts.game_screen_height, fps=100)
         self.block_size = self.height * 0.8 // (Consts.board_height + 2)
 
-    def draw_board(self, info: Dict) -> None:
+    def blit_board(self, info: Dict) -> None:
         self.board.reset()
 
         self.board.draw_cells(info['board']['cells'])
@@ -81,14 +81,14 @@ class Game(Screen):
                                   current_tetromino['y'] * Consts.block_size, current_tetromino['visible_rotation'])
         self.blit_widget(self.board)
 
-    def draw_next(self, info: Dict) -> None:
+    def blit_next(self, info: Dict) -> None:
         self.next.reset()
         for i, tetromino in enumerate(info['tetromino_queue'][:Consts.next_size]):
             self.next.draw_tetromino(tetromino['name'], (self.next.width - (tetromino['width'] + 2) * Consts.block_size) * .5,
                                      (i * 3 + 1) * Consts.block_size, tetromino['rotation'])
         self.blit_widget(self.next)
 
-    def draw_held(self, info: Dict) -> None:
+    def blit_held(self, info: Dict) -> None:
         self.held.reset()
         tetromino = info['held_tetromino']
         if tetromino is not None:
@@ -96,7 +96,7 @@ class Game(Screen):
                                      Consts.block_size, tetromino['rotation'])
         self.blit_widget(self.held)
 
-    def draw_stats(self, info: Dict) -> None:
+    def blit_stats(self, info: Dict) -> None:
         self.stats.update(info)
         self.blit_widget(self.stats)
 
@@ -104,21 +104,23 @@ class Game(Screen):
         self.fill(Colors.black)
 
         info = self.tetris.to_json()
-        self.draw_board(info)
-        self.draw_next(info)
-        self.draw_held(info)
-        self.draw_stats(info)
+        self.blit_board(info)
+        self.blit_next(info)
+        self.blit_held(info)
+        self.blit_stats(info)
         self.blit_widget(self.reset_button)
         self.blit_widget(self.ai_switch)
+        self.blit_widget(self.back)
 
         self.tetris.update()
 
     def mouse_down(self, x: float, y: float) -> None:
         if self.reset_button.overlap(x, y):
             self.tetris.reset()
-
-        if self.ai_switch.overlap(x, y):
+        elif self.ai_switch.overlap(x, y):
             self.tetris.switch_use_ai()
+        elif self.back.overlap(x, y):
+            self.redirect('MainMenu')
 
     def key_down(self, key: Key) -> None:
         if key is Key.RIGHT_ARROW:
@@ -197,6 +199,10 @@ class Game(Screen):
                       y=self.reset_button.bottom + Consts.block_size,
                       surface=Fonts.pixel.render(text='USE AI', color=Colors.black, size=Consts.block_size * 1.5,
                                                  background=Colors.white))
+
+    @cached_property
+    def back(self) -> Widget:
+        return Widget(x=self.width * 0.01, y=self.board.y, surface=Images.back)
 
     @cached_property
     def tetris(self) -> TetrisController:

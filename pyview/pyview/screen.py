@@ -9,7 +9,7 @@ SCREEN_REDIRECT = pg.event.custom_type()
 
 class Screen(Surface):
     def __init__(self, width: int, height: int, fps: int = 60) -> None:
-        super().__init__(width, height, pg.Surface((width, height)))
+        super().__init__(width, height)
         self.fps = fps
         self.fps_clock = pg.time.Clock()
 
@@ -18,10 +18,6 @@ class Screen(Surface):
         """ Posts pygame event to redirect the user to the screen mapped to the screen id. """
         event = pg.event.Event(SCREEN_REDIRECT, screen_id=screen_id)
         pg.event.post(event)
-
-    def set_as_main(self) -> None:
-        self.image = pg.display.set_mode((self.width, self.height))
-        pg.display.set_caption(self.id)
 
     def clock(self) -> None:
         """ Clocks screen to make sure it runs on a stable fps. """

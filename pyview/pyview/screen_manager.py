@@ -2,6 +2,7 @@ import ast
 import importlib.util
 import os
 from _ast import ClassDef
+from functools import cached_property
 from pathlib import Path
 from typing import List
 
@@ -31,8 +32,9 @@ class ScreenManager:
             return True
 
     def set_display(self) -> None:
-        """ Resets screen as main screen. """
-        self.current_screen.set_as_main()
+        """ Sets screen as main screen. """
+        pg.display.set_mode(self.current_screen.size)
+        pg.display.set_caption(self.current_screen.id)
 
     def handle_event(self, event: pg.event.Event) -> None:
         """ Handles all allowed event types. """
@@ -68,11 +70,16 @@ class ScreenManager:
         self.handle_events()
         self.current_screen.update()
         self.current_screen.clock()
+        self.window.blit(self.current_screen.image, (0, 0))
         pg.display.update()
 
     def main_loop(self) -> None:
         while self.run:
             self.execute()
+
+    @cached_property
+    def window(self) -> pg.Surface:
+        return pg.display.get_surface()
 
     @property
     def current_screen(self) -> Screen:

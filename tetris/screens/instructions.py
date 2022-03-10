@@ -1,9 +1,8 @@
 from functools import cached_property
 
-from pyview.key import Key
 from pyview.screen import Screen
 from pyview.widget import Widget
-from tetris.assets import Colors, Fonts
+from tetris.assets import Colors, Fonts, Images
 
 INSTRUCTIONS = """The aim in Tetris is simple;
 you bring down blocks from the top
@@ -32,20 +31,22 @@ class Instructions(Screen):
         self.fill(Colors.black)
         self.blit_widget(self.title)
         self.blit_widget(self.instructions)
+        self.blit_widget(self.back)
 
-    def key_down(self, key: Key) -> None:
-        if key is Key.ESCAPE:
+    def mouse_down(self, x: float, y: float) -> None:
+        if self.back.overlap(x, y):
             self.redirect('MainMenu')
 
     @cached_property
     def title(self) -> Widget:
-        return Widget(x=self.width * .5,
-                      y=self.height * 0.075,
-                      surface=Fonts.pixel.render('INSTRUCTIONS', Colors.white, self.height * 0.075),
-                      centered=True)
+        return Widget(x=self.width * .5, y=self.height * 0.075, centered=True,
+                      surface=Fonts.pixel.render('Instructions', Colors.white, self.height * 0.075))
+
+    @cached_property
+    def back(self) -> Widget:
+        return Widget(x=self.width * 0.01, y=self.title.y, surface=Images.back)
 
     @cached_property
     def instructions(self) -> Widget:
-        return Widget(x=25,
-                      y=self.title.bottom + 20,
+        return Widget(x=self.width * 0.03125, y=self.title.bottom + self.height * 0.025,
                       surface=Fonts.pixel.render(INSTRUCTIONS, Colors.white, 26, align='ltr', spacing=15))

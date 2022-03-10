@@ -38,6 +38,7 @@ class Images(Assets):
     Z = Surface.load(os.path.join(Consts.images_directory, 'Z.png'), Consts.block_size, Consts.block_size)
     border = Surface.load(os.path.join(Consts.images_directory, 'border.png'), Consts.block_size, Consts.block_size)
     ghost = Surface.load(os.path.join(Consts.images_directory, 'ghost.png'), Consts.block_size, Consts.block_size)
+    back = Surface.load(os.path.join(Consts.images_directory, 'back.png'), 50, 50)
 
 
 class Sounds(Assets):
