@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, Tuple
 
 from pytris.active_tetromino import ActiveTetromino
 from pytris.board import Board
@@ -36,8 +36,8 @@ class Tetris:
 
         self.can_hold = True
 
-    def drop_rows(self, cleared_rows: List[int]) -> None:
-        for row in range(cleared_rows[-1] - 1, 0, -1):
+    def drop_rows(self, last_row: int) -> None:
+        for row in range(last_row - 1, 0, -1):
             if self.board.is_empty(row):
                 continue
 
@@ -54,7 +54,7 @@ class Tetris:
             self.cleared_lines += len(cleared_rows)
             self.score += LINE_CLEAR_SCORE[len(cleared_rows) - 1] * self.level
 
-            self.drop_rows(cleared_rows)
+            self.drop_rows(cleared_rows[-1])
 
     def move_down(self) -> None:
         if self.can_move_down:

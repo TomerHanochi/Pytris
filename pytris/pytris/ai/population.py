@@ -1,6 +1,6 @@
 from heapq import nlargest
 from random import choices, random
-from typing import Dict, List
+from typing import Dict, Iterator
 
 from pytris.ai.network import Network
 
@@ -52,17 +52,16 @@ class PopulationGenerator:
         self.__networks.update({network: 0 for network in strongest_networks})
 
     @property
-    def offspring(self) -> List[Network]:
+    def offspring(self) -> Iterator[Network]:
         """
         For each offspring, we randomly select a number of networks from the population, and pick
         the top two networks from the sample. We combine these two networks using the following formula:
         if w = parent1_weights * parent1_fitness + parent2_weights * parent2_fitness
         then child_weights = w / |w|
         Then, there is a random chance to mutate the child network, altering its values by a certain amount.
-        :return: List of newly generated networks
+        :return: Yields a network
         """
-        offspring = list()
-        all_candidates = list(self.networks.items())
+        all_candidates = tuple(self.networks.items())
         for _ in range(self.num_of_offspring):
             (parent1, fitness1), (parent2, fitness2) = nlargest(n=2, key=lambda pair: pair[1],
                                                                 iterable=choices(all_candidates,
@@ -72,8 +71,7 @@ class PopulationGenerator:
             if random() < self.mutation_chance:
                 child.mutate(self.mutation_power)
 
-            offspring.append(child)
-        return offspring
+            yield child
 
     @property
     def networks(self) -> Dict[Network, float]:
