@@ -11,7 +11,7 @@ HARD_DROP_SCORE = 2
 
 
 class Tetris:
-    def __init__(self, width: int, height: int) -> None:
+    def __init__(self, width: int, height: int, high_score: int) -> None:
         self.board = Board(width, height)
         self.tetromino_queue = TetrominoQueue()
         self.tetromino_queue.update()
@@ -22,6 +22,7 @@ class Tetris:
 
         self.cleared_lines = 0
         self.score = 0
+        self.high_score = high_score
 
     def lock(self) -> None:
         if len(self.tetromino_queue) <= len(NAMES):
@@ -115,7 +116,7 @@ class Tetris:
         self.can_hold = True
 
     def reset(self) -> None:
-        self.__init__(self.board.width, self.board.height)
+        self.__init__(self.board.width, self.board.height, self.high_score)
 
     @property
     def can_move_down(self) -> bool:
@@ -177,5 +178,6 @@ class Tetris:
                 'cleared_lines': self.cleared_lines,
                 'level': self.level,
                 'score': self.score,
+                'high_score': self.high_score,
             },
         }

@@ -9,8 +9,11 @@ from pytris.utils.vector import Vector
 
 
 class TetrisController:
-    def __init__(self, width: int, height: int) -> None:
-        self.__tetris = Tetris(width, height)
+    def __init__(self, width: int, height: int, high_score_filepath: str) -> None:
+        self.high_score_filepath = high_score_filepath
+        with open(high_score_filepath, 'r') as high_score:
+            self.__tetris = Tetris(width, height, int(high_score.read()))
+
         self.__time_since_move_down = 0
         self.__time_since_cant_move_down = 0
         self.__move_right = False
@@ -83,8 +86,16 @@ class TetrisController:
                 self.__tetris.lock()
                 self.__time_since_cant_move_down = 0
 
+    def update_high_score(self) -> None:
+        if self.__tetris.score > self.__tetris.high_score:
+            self.__tetris.high_score = self.__tetris.score
+
+        with open(self.high_score_filepath, 'w') as f:
+            f.write(str(self.__tetris.high_score))
+
     def update(self) -> None:
         if self.__tetris.terminal or self.paused:
+            self.update_high_score()
             return
 
         if self.use_ai:

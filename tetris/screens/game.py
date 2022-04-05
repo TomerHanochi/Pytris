@@ -1,3 +1,4 @@
+import os
 from functools import cached_property
 from typing import Dict, Iterable, Tuple
 
@@ -50,7 +51,7 @@ class Stats(Widget):
     spacing = Consts.block_size * 1.5
 
     def __init__(self, x: float, y: float, centered: bool = False) -> None:
-        super().__init__(x, y, centered=centered, surface=Fonts.pixel.render(text='CLEARED LINES\nLEVEL\nSCORE\n',
+        super().__init__(x, y, centered=centered, surface=Fonts.pixel.render(text='CLEARED LINES\nLEVEL\nSCORE\nHIGH SCORE\n',
                                                                              color=Colors.white,
                                                                              size=self.font_size,
                                                                              spacing=self.spacing,
@@ -116,6 +117,7 @@ class Game(Screen):
 
     def mouse_down(self, x: float, y: float) -> None:
         if self.reset_button.overlap(x, y):
+            self.tetris.update_high_score()
             self.tetris.reset()
         elif self.ai_switch.overlap(x, y):
             self.tetris.switch_use_ai()
@@ -206,4 +208,6 @@ class Game(Screen):
 
     @cached_property
     def tetris(self) -> TetrisController:
-        return TetrisController(Consts.board_width, Consts.board_height)
+        return TetrisController(width=Consts.board_width,
+                                height=Consts.board_height,
+                                high_score_filepath=os.path.join(Consts.base_path, 'high_score.txt'))
