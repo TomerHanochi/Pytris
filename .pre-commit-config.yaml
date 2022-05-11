@@ -4,4 +4,4 @@ repos:
     hooks:
     -   id: flake8
         name: flake8
-        args: [--config=setup.cfg]
+        args: [--config=.flake8]
