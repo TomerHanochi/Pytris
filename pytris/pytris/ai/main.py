@@ -9,7 +9,7 @@ from pytris.ai.trainer import Trainer
 def tetris_evaluation(network: Network) -> float:
     """ Returns the number of lines cleared in 'n' moves and 'm' games. """
     fitness = 0
-    tetris = Tetris(10, 20)
+    tetris = Tetris(10, 20, 0)
     num_of_games = 3
     num_of_moves = 100
     for _ in range(num_of_games):
