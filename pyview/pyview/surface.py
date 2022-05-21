@@ -24,7 +24,7 @@ class Surface:
     def blit_widget(self, widget: 'Widget') -> None:
         self.blit(widget, widget.x, widget.y)
 
-    def fill(self, color: tuple, x: float = 0, y: float = 0, width: float = None,
+    def fill(self, color: Tuple[int, int, int], x: float = 0, y: float = 0, width: float = None,
              height: float = None, centered: bool = False) -> None:
         """ Colors a specified portion of the screen with the given Color. """
         if centered:
